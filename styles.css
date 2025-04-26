@@ -1,0 +1,86 @@
+body {
+  margin: 0;
+  background: #111;
+  color: white;
+  font-family: sans-serif;
+  overflow: hidden;
+}
+
+#videoContainer {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background: black;
+}
+
+#videoPlayer {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+#overlayButtons {
+  position: absolute;
+  bottom: 30px;
+  width: 100%;
+  text-align: center;
+}
+
+button {
+  padding: 15px 25px;
+  font-size: 18px;
+  border: none;
+  border-radius: 10px;
+  background: #ff4081;
+  color: white;
+  cursor: pointer;
+  margin: 5px;
+  transition: 0.3s;
+}
+
+button:hover {
+  background: #e91e63;
+}
+
+.hidden {
+  display: none;
+}
+
+#questionContainer {
+  position: absolute;
+  top: 30%;
+  width: 100%;
+  text-align: center;
+  background: rgba(0,0,0,0.7);
+  padding: 20px;
+}
+
+.glow {
+  box-shadow: 0 0 15px #ff4081;
+  animation: glowPulse 2s infinite;
+}
+
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 15px #ff4081; }
+  50% { box-shadow: 0 0 30px #ff80ab; }
+}
+
+@media (max-width: 768px) {
+  button {
+    font-size: 16px;
+    padding: 12px 20px;
+  }
+  #questionContainer p {
+    font-size: 18px;
+  }
+}
+
+#fireworksCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  pointer-events: none;
+}

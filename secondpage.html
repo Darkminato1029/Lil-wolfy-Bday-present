@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Click to Play Video with Hearts & Fireworks</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body, html {
+      height: 100%;
+      overflow: hidden;
+      font-family: sans-serif;
+    }
+
+    #bgVideo {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      z-index: -2;
+      display: none;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .hearts {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .heart {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: red;
+      transform: rotate(45deg);
+      animation: float 5s infinite;
+    }
+
+    .heart::before,
+    .heart::after {
+      content: "";
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: red;
+      border-radius: 50%;
+    }
+
+    .heart::before {
+      top: -10px;
+      left: 0;
+    }
+
+    .heart::after {
+      left: -10px;
+      top: 0;
+    }
+
+    @keyframes float {
+      0% {
+        transform: translateY(100vh) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100vh) scale(0.5);
+        opacity: 0;
+      }
+    }
+
+    #playOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.8);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 5;
+      cursor: pointer;
+      font-size: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <div id="playOverlay">Click to Play</div>
+
+  <video id="bgVideo" playsinline>
+    <source src="yourvideo.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+
+  <div class="overlay">
+    <div class="hearts"></div>
+    <canvas id="fireworks"></canvas>
+  </div>
+
+  <script>
+    const video = document.getElementById("bgVideo");
+    const playOverlay = document.getElementById("playOverlay");
+
+    playOverlay.addEventListener("click", () => {
+      video.style.display = "block";
+      video.play().then(() => {
+        playOverlay.style.display = "none";
+      }).catch((error) => {
+        alert("Playback failed: " + error);
+      });
+    });
+
+    // Hearts animation
+    function createHeart() {
+      const heart = document.createElement("div");
+      heart.className = "heart";
+      heart.style.left = Math.random() * 100 + "vw";
+      heart.style.animationDuration = (2 + Math.random() * 3) + "s";
+      document.querySelector(".hearts").appendChild(heart);
+      setTimeout(() => heart.remove(), 5000);
+    }
+    setInterval(createHeart, 500);
+
+    // Fireworks using canvas
+    const canvas = document.getElementById("fireworks");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    function random(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    function Firework() {
+      this.x = canvas.width / 2;
+      this.y = canvas.height;
+      this.radius = 2;
+      this.color = `hsl(${random(0, 360)}, 100%, 50%)`;
+      this.particles = [];
+
+      for (let i = 0; i < 50; i++) {
+        this.particles.push({
+          x: this.x,
+          y: this.y,
+          vx: Math.cos(i * 0.126) * random(2, 5),
+          vy: Math.sin(i * 0.126) * random(2, 5),
+          alpha: 1
+        });
+      }
+    }
+
+    Firework.prototype.draw = function () {
+      this.particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.alpha -= 0.01;
+        ctx.fillStyle = this.color;
+        ctx.globalAlpha = p.alpha;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    };
+
+    let fireworks = [];
+
+    setInterval(() => {
+      fireworks.push(new Firework());
+    }, 1000);
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      fireworks.forEach((fw, index) => {
+        fw.draw();
+        fw.particles = fw.particles.filter(p => p.alpha > 0);
+        if (fw.particles.length === 0) fireworks.splice(index, 1);
+      });
+      requestAnimationFrame(animate);
+    }
+    animate();
+  </script>
+</body>
+</html>
